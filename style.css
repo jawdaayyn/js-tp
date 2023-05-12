@@ -1,0 +1,19 @@
+.df {
+  display: flex;
+}
+
+.col {
+  flex-direction: column;
+}
+
+.jcc {
+  justify-content: center;
+}
+
+.aic {
+  align-items: center;
+}
+
+.bgr {
+  background-color: red;
+}
