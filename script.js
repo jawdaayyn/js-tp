@@ -104,65 +104,59 @@ const randomQuestions = (length) => {
   return list;
 };
 
-const createQuizz = (length = 3) => {
-  const list = randomQuestions(length);
-  console.log(list);
-};
-
 const quizData = [
   {
     question: "What is the capital of France?",
     options: ["Paris", "London", "Rome", "Madrid"],
-    answer: "Paris"
+    answer: "Paris",
   },
   {
     question: "Which is the largest planet in our solar system?",
     options: ["Jupiter", "Saturn", "Mars", "Earth"],
-    answer: "Jupiter"
+    answer: "Jupiter",
   },
   // Add more questions here...
 ];
 
-const questionElement = document.getElementById('question');
-const optionsElement = document.getElementById('options');
-const submitButton = document.getElementById('submit');
+const questionElement = document.getElementById("question");
+const optionsElement = document.getElementById("options");
+const submitButton = document.getElementById("submit");
 
 let currentQuestion = 0;
 let score = 0;
 
-function loadQuestion() {
-  const currentQuizData = quizData[currentQuestion];
+function loadQuestion(length = 10) {
+  const list = randomQuestions(length);
+  const currentQuizData = list[currentQuestion];
   questionElement.innerText = currentQuizData.question;
-  optionsElement.innerHTML = '';
+  optionsElement.innerHTML = "";
 
-  currentQuizData.options.forEach((option) => {
-    const button = document.createElement('button');
+  currentQuizData.answers.forEach((option) => {
+    const button = document.createElement("button");
     button.innerText = option;
-    button.addEventListener('click', () => checkAnswer(option));
+    button.addEventListener("click", () => checkAnswer(option, list));
     optionsElement.appendChild(button);
   });
 }
 
-function checkAnswer(answer) {
-  const currentQuizData = quizData[currentQuestion];
-
-  if (answer === currentQuizData.answer) {
+function checkAnswer(answer, list) {
+  if (answer === list[currentQuestion].answers[0]) {
     score++;
   }
 
   currentQuestion++;
-
-  if (currentQuestion < quizData.length) {
+  console.log(list);
+  if (currentQuestion < list.length) {
     loadQuestion();
   } else {
-    showResults();
+    showResults(list.length);
   }
 }
 
-function showResults() {
-  questionElement.innerText = `You scored ${score} out of ${quizData.length} questions.`;
-  optionsElement.innerHTML = '';
-  submitButton.style.display = 'none';
+function showResults(length) {
+  questionElement.innerText = `You scored ${score} out of ${length} questions.`;
+  optionsElement.innerHTML = "";
+  submitButton.style.display = "none";
 }
 
 loadQuestion();
