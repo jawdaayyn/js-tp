@@ -48,60 +48,6 @@ const questions = [
     type: "one-choice",
   },
   {
-    question: "A quelle saison le boeuf est-il le plus fecond ?",
-    answers: ["Aucune", "Printemps", "Automne", "Hiver"],
-    answer: ["Aucune"],
-    type: "one-choice",
-  },
-  {
-    question: "Quel club un golfeur utilise-t-il sur le green ?",
-    answers: ["Un putter", "Un bois", "Un wedge", "Un hybride"],
-    answer: ["Un putter"],
-    type: "one-choice",
-  },
-  {
-    question: "De quelle couleur sont les jonquilles ?",
-    answers: ["Jaunes", "Violettes", "Bleues", "Blanches"],
-    answer: ["Jaunes"],
-    type: "one-choice",
-  },
-  {
-    question:
-      "En quelle annee Angela Merkel a-t-elle ete nommee chanceliere d'Allemagne ?",
-    answers: ["2005", "2002", "1998", "2007"],
-    answer: ["2005"],
-    type: "one-choice",
-  },
-  {
-    question: "Quel est le prenom de MC Solaar ?",
-    answers: ["Claude", "Samir", "Thibault", "Anthony"],
-    answer: ["Claude"],
-    type: "one-choice",
-  },
-  {
-    question: "Quel sport associe-t-on au Quinze de France ?",
-    answers: ["Le rugby", "Le football", "Le handball", "Le tennis de table"],
-    answer: ["Le rugby"],
-    type: "one-choice",
-  },
-  {
-    question: "Qu'appelle-t-on le 9e art ?",
-    answers: [
-      "La bande dessinee",
-      "Les jeux videos",
-      "L'architecture",
-      "La poesie",
-    ],
-    answer: ["La bande dessinee"],
-    type: "one-choice",
-  },
-  {
-    question: "Quel sport appelle-t-on soccer aux Etats-Unis ?",
-    answers: ["Le football", "Le rugby", "Le tennis", "Le handball"],
-    answer: ["Le football"],
-    type: "one-choice",
-  },
-  {
     question:
       "A combien de jeux Olympiques Philippe Candeloro a-t-il gagne des medailles ?",
     answers: ["2", "5", "1", "3"],
@@ -121,6 +67,11 @@ const questions = [
     type: "one-choice",
   },
   {
+    question: "De quelle couleur est le cheval blanc d'henri IV ?",
+    answer: ["Blanc", "blanc", "BLANC"],
+    type: "text",
+  },
+  {
     question: "Quelle est la capitale du Cameroun ? ",
     answers: ["Yaounde", "Dakar", "Kinshasa", "Bamako"],
     answer: ["Yaounde"],
@@ -133,13 +84,18 @@ const questions = [
     type: "one-choice",
   },
   {
-    question: "What is the capital of France?",
-    answers: ["Paris", "London", "Rome", "Marseille"],
-    answer: ["Paris", "Marseille"],
+    question: "Cliquez sur les objets qui sont des fruits",
+    answers: ["Cerise", "Tomate", "Aubergine", "Banane"],
+    answer: ["Cerise", "Tomate"],
     type: "multiple-choice",
   },
 ];
 
+const questionElement = document.getElementById("question");
+const optionsElement = document.getElementById("options");
+
+let currentQuestion = 0;
+let score = 0;
 const randomQuestions = (length) => {
   let list = [];
   while (list.length < length) {
@@ -152,36 +108,87 @@ const randomQuestions = (length) => {
   return list;
 };
 
-const questionElement = document.getElementById("question");
-const optionsElement = document.getElementById("options");
-let scoreElement = document.getElementById("score");
-
-let currentQuestion = 0;
-let score = 0;
-
 function loadQuestion(length = 10) {
   const list = randomQuestions(length);
   const currentQuizData = list[currentQuestion];
   questionElement.innerText = currentQuizData.question;
   optionsElement.innerHTML = "";
-
-  currentQuizData.answers.forEach((option) => {
-    const button = document.createElement("button");
-    button.innerText = option;
-    button.addEventListener("click", () => checkAnswer(option, list));
-    optionsElement.appendChild(button);
-  });
+  loadAnswers(currentQuizData.answers, currentQuizData.type, list);
 }
 
-function checkAnswer(answer, list) {
-  switch (list[currentQuestion].type) {
+function loadAnswers(answers, type, list) {
+  switch (type) {
     case "one-choice":
-      answer === list[currentQuestion].answer[0] ? score++ : "";
-      scoreElement = score;
+      answers.forEach((option) => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.addEventListener("click", () => checkAnswer(option, list, type));
+        optionsElement.appendChild(button);
+      });
+      break;
+    case "multiple-choice":
+      answers.forEach((option) => {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = option;
+        optionsElement.appendChild(checkbox);
+        const label = document.createElement("label");
+        label.innerText = option;
+        optionsElement.appendChild(label);
+        const br = document.createElement("br");
+        optionsElement.appendChild(br);
+      });
+      const button = document.createElement("button");
+      button.innerText = "Valider";
+      button.addEventListener("click", () => checkAnswer(null, list, type));
+      optionsElement.appendChild(button);
+      break;
+    case "text": {
+      const input = document.createElement("input");
+      input.type = "text";
+      optionsElement.appendChild(input);
+      const button = document.createElement("button");
+      button.innerText = "Valider";
+      button.addEventListener("click", () =>
+        checkAnswer(input.value, list, type)
+      );
+      optionsElement.appendChild(button);
+      break;
+    }
+    default:
+      break;
+  }
+}
+function checkAnswer(answer, list, type) {
+  const checkedInputs = document.querySelectorAll(
+    'input[type="checkbox"]:checked'
+  );
+  const checkedValues = Array.from(checkedInputs).map((input) => input.value);
+  const scoreSpan = document.getElementById("score");
+  switch (type) {
+    case "one-choice":
+      if (answer === list[currentQuestion].answer[0]) {
+        score++;
+      }
+      break;
+    case "multiple-choice":
+      if (
+        checkedValues.length === list[currentQuestion].answer.length &&
+        list[currentQuestion].answer.every((a) => checkedValues.includes(a))
+      ) {
+        score++;
+      }
+      break;
+    case "text":
+      if (list[currentQuestion].answer.includes(answer)) {
+        score++;
+      }
       break;
     default:
       break;
   }
+
+  scoreSpan.innerText = score + "/" + length;
 
   currentQuestion++;
   if (currentQuestion < list.length) {
