@@ -1,19 +1,25 @@
-.df {
+.container {
+  background: grey;
+  border: 1px solid black;
+  padding: 1% 0;
+}
+
+.container .question {
   display: flex;
-}
-
-.col {
-  flex-direction: column;
-}
-
-.jcc {
   justify-content: center;
 }
-
-.aic {
-  align-items: center;
+.options {
+  display: flex;
+  flex-direction: column;
+}
+.options button {
+  background: #fff;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid black;
 }
 
-.bgr {
-  background-color: red;
+.options button:hover {
+  background: cyan;
+  cursor: pointer;
 }
