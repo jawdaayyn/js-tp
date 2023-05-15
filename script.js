@@ -111,7 +111,7 @@ let timerElement = document.createElement("span");
 let currentQuestion = 0;
 let score = 0;
 let currentQuizz = [];
-let timerInterval; // declare a global variable to store the timer interval
+let timerInterval; 
 
 const randomQuestions = (length) => {
   let list = [];
@@ -127,23 +127,23 @@ const randomQuestions = (length) => {
 
 function loadQuizz(length = 10) {
   currentQuizz = randomQuestions(length);
-  /*
+  
   const hintButton = document.createElement("button");
   hintButton.textContent = "Hint";
   hintButton.addEventListener("click", () =>
     showHint(currentQuizz[currentQuestion].hint)
   );
   document.getElementById("hint").appendChild(hintButton);
-  */
+  
   loadQuestion();
 }
 
 function loadQuestion() {
-  // clear any previous timer
+ 
   clearInterval(timerInterval);
 
-  // start a new timer for this question
-  let secondsLeft = 15; // set the number of seconds for this question
+  
+  let secondsLeft = 15; 
   timerElement.innerText = `Time left: ${secondsLeft}`;
   document.getElementById("timer").appendChild(timerElement);
   timerInterval = setInterval(() => {
@@ -151,7 +151,7 @@ function loadQuestion() {
     timerElement.innerText = `Time left: ${secondsLeft}`;
     if (secondsLeft === 0) {
       clearInterval(timerInterval);
-      checkAnswer(null); // automatically submit the answer when time runs out
+      checkAnswer(null); 
     }
   }, 1000);
 
@@ -161,10 +161,22 @@ function loadQuestion() {
   loadAnswers();
 }
 
+function shuffleArray(array) {
+  const shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+}
+
 function loadAnswers() {
+  const answers = currentQuizz[currentQuestion].answers;
+  const randomizedAnswers = shuffleArray(answers);
+
   switch (currentQuizz[currentQuestion].type) {
     case "one-choice":
-      currentQuizz[currentQuestion].answers.forEach((option) => {
+      randomizedAnswers.forEach((option) => {
         const button = document.createElement("button");
         button.innerText = option;
         button.addEventListener("click", () => checkAnswer(option));
@@ -172,7 +184,7 @@ function loadAnswers() {
       });
       break;
     case "multiple-choice":
-      currentQuizz[currentQuestion].answers.forEach((option) => {
+      randomizedAnswers.forEach((option) => {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = option;
@@ -202,6 +214,7 @@ function loadAnswers() {
       break;
   }
 }
+
 function showHint(hint) {
   const hintElement = document.getElementById("hint");
   hintElement.innerText = "Hint: " + hint;
