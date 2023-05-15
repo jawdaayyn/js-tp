@@ -43,7 +43,7 @@ const questions = [
   {
     question: "Cliquez sur les objets qui sont des fruits",
     answers: ["Cerise", "Tomate", "Aubergine", "Banane"],
-    answer: ["Cerise", "Tomate"],
+    answer: ["Cerise", "Tomate", "Banane"],
     type: "multiple-choice",
     hint: "Guy",
   },
@@ -54,6 +54,8 @@ const optionsElement = document.getElementById("options");
 
 let currentQuestion = 0;
 let score = 0;
+let currentQuizz = [];
+
 const randomQuestions = (length) => {
   let list = [];
   while (list.length < length) {
@@ -66,36 +68,40 @@ const randomQuestions = (length) => {
   return list;
 };
 
-function showHint(hint) {
+
+  function showHint(hint) {
   const hintElement = document.getElementById("hint");
   hintElement.innerText = "Hint: " + hint;
 }
-
-function loadQuestion(length = 10) {
-  const list = randomQuestions(length);
-  const currentQuizData = list[currentQuestion];
-  questionElement.innerText = currentQuizData.question;
-  optionsElement.innerHTML = "";
-  loadAnswers(currentQuizData.answers, currentQuizData.type, list);
-
   const hintButton = document.createElement("button");
   hintButton.innerText = "Hint";
   hintButton.addEventListener("click", () => showHint(currentQuizData.hint));
   optionsElement.appendChild(hintButton);
+
+
+function loadQuizz(length = 10) {
+  currentQuizz = randomQuestions(length);
+  loadQuestion();
 }
 
-function loadAnswers(answers, type, list) {
-  switch (type) {
+function loadQuestion() {
+  questionElement.innerText = currentQuizz[currentQuestion].question;
+  optionsElement.innerHTML = "";
+  loadAnswers();
+}
+
+function loadAnswers() {
+  switch (currentQuizz[currentQuestion].type) {
     case "one-choice":
-      answers.forEach((option) => {
+      currentQuizz[currentQuestion].answers.forEach((option) => {
         const button = document.createElement("button");
         button.innerText = option;
-        button.addEventListener("click", () => checkAnswer(option, list, type));
+        button.addEventListener("click", () => checkAnswer(option));
         optionsElement.appendChild(button);
       });
       break;
     case "multiple-choice":
-      answers.forEach((option) => {
+      currentQuizz[currentQuestion].answers.forEach((option) => {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = option;
@@ -108,7 +114,7 @@ function loadAnswers(answers, type, list) {
       });
       const button = document.createElement("button");
       button.innerText = "Valider";
-      button.addEventListener("click", () => checkAnswer(null, list, type));
+      button.addEventListener("click", () => checkAnswer(null));
       optionsElement.appendChild(button);
       break;
     case "text": {
@@ -117,9 +123,7 @@ function loadAnswers(answers, type, list) {
       optionsElement.appendChild(input);
       const button = document.createElement("button");
       button.innerText = "Valider";
-      button.addEventListener("click", () =>
-        checkAnswer(input.value, list, type)
-      );
+      button.addEventListener("click", () => checkAnswer(input.value));
       optionsElement.appendChild(button);
       break;
     }
@@ -127,28 +131,30 @@ function loadAnswers(answers, type, list) {
       break;
   }
 }
-function checkAnswer(answer, list, type) {
+function checkAnswer(answer) {
   const checkedInputs = document.querySelectorAll(
     'input[type="checkbox"]:checked'
   );
   const checkedValues = Array.from(checkedInputs).map((input) => input.value);
   const scoreSpan = document.getElementById("score");
-  switch (type) {
+  switch (currentQuizz[currentQuestion].type) {
     case "one-choice":
-      if (answer === list[currentQuestion].answer[0]) {
+      if (answer === currentQuizz[currentQuestion].answer[0]) {
         score++;
       }
       break;
     case "multiple-choice":
       if (
-        checkedValues.length === list[currentQuestion].answer.length &&
-        list[currentQuestion].answer.every((a) => checkedValues.includes(a))
+        checkedValues.length === currentQuizz[currentQuestion].answer.length &&
+        currentQuizz[currentQuestion].answer.every((a) =>
+          checkedValues.includes(a)
+        )
       ) {
         score++;
       }
       break;
     case "text":
-      if (list[currentQuestion].answer.includes(answer)) {
+      if (currentQuizz[currentQuestion].answer.includes(answer)) {
         score++;
       }
       break;
@@ -156,13 +162,13 @@ function checkAnswer(answer, list, type) {
       break;
   }
 
-  scoreSpan.innerText = score + "/" + length;
+  scoreSpan.innerText = score + "/" + currentQuizz.length;
 
   currentQuestion++;
-  if (currentQuestion < list.length) {
+  if (currentQuestion < currentQuizz.length) {
     loadQuestion();
   } else {
-    showResults(list.length);
+    showResults(currentQuizz.length);
   }
 }
 
@@ -171,4 +177,4 @@ function showResults(length) {
   optionsElement.innerHTML = "";
 }
 
-loadQuestion();
+loadQuizz();
