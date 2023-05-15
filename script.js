@@ -106,10 +106,12 @@ const questions = [
 
 const questionElement = document.getElementById("question");
 const optionsElement = document.getElementById("options");
+let timerElement = document.createElement("span");
 
 let currentQuestion = 0;
 let score = 0;
 let currentQuizz = [];
+let timerInterval; // declare a global variable to store the timer interval
 
 const randomQuestions = (length) => {
   let list = [];
@@ -123,23 +125,37 @@ const randomQuestions = (length) => {
   return list;
 };
 
-function showHint(hint) {
-  const hintElement = document.getElementById("hint");
-  hintElement.innerText = "Hint: " + hint;
-}
-
 function loadQuizz(length = 10) {
   currentQuizz = randomQuestions(length);
+  /*
   const hintButton = document.createElement("button");
   hintButton.textContent = "Hint";
   hintButton.addEventListener("click", () =>
     showHint(currentQuizz[currentQuestion].hint)
   );
   document.getElementById("hint").appendChild(hintButton);
+  */
   loadQuestion();
 }
 
 function loadQuestion() {
+  // clear any previous timer
+  clearInterval(timerInterval);
+
+  // start a new timer for this question
+  let secondsLeft = 15; // set the number of seconds for this question
+  timerElement.innerText = `Time left: ${secondsLeft}`;
+  document.getElementById("timer").appendChild(timerElement);
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    timerElement.innerText = `Time left: ${secondsLeft}`;
+    if (secondsLeft === 0) {
+      clearInterval(timerInterval);
+      checkAnswer(null); // automatically submit the answer when time runs out
+    }
+  }, 1000);
+
+  // load the question and answers as before
   questionElement.innerText = currentQuizz[currentQuestion].question;
   optionsElement.innerHTML = "";
   loadAnswers();
@@ -186,11 +202,22 @@ function loadAnswers() {
       break;
   }
 }
+function showHint(hint) {
+  const hintElement = document.getElementById("hint");
+  hintElement.innerText = "Hint: " + hint;
+}
+
 function checkAnswer(answer) {
+  clearInterval(timerInterval);
+
   const checkedInputs = document.querySelectorAll(
     'input[type="checkbox"]:checked'
   );
-  const checkedValues = Array.from(checkedInputs).map((input) => input.value);
+  const checkedValues = [];
+
+  for (const input of checkedInputs) {
+    checkedValues.push(input.value);
+  }
   const scoreSpan = document.getElementById("score");
   switch (currentQuizz[currentQuestion].type) {
     case "one-choice":
