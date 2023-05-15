@@ -106,13 +106,24 @@ const questions = [
 
 const questionElement = document.getElementById("question");
 const optionsElement = document.getElementById("options");
-let timerElement = document.createElement("span");
+const hintButton = document.createElement("button");
+const hintElement = document.getElementById("hint");
 
+let timerElement = document.createElement("span");
 let currentQuestion = 0;
 let score = 0;
 let currentQuizz = [];
-let timerInterval; 
+let timerInterval;
 
+hintButton.textContent = "Hint";
+hintButton.addEventListener("click", () =>
+  showHint(currentQuizz[currentQuestion].hint)
+);
+document.getElementById("hint").appendChild(hintButton);
+
+function showHint(hint) {
+  hintElement.innerText = "Hint : " + hint;
+}
 const randomQuestions = (length) => {
   let list = [];
   while (list.length < length) {
@@ -127,23 +138,13 @@ const randomQuestions = (length) => {
 
 function loadQuizz(length = 10) {
   currentQuizz = randomQuestions(length);
-  
-  const hintButton = document.createElement("button");
-  hintButton.textContent = "Hint";
-  hintButton.addEventListener("click", () =>
-    showHint(currentQuizz[currentQuestion].hint)
-  );
-  document.getElementById("hint").appendChild(hintButton);
-  
+
   loadQuestion();
 }
 
 function loadQuestion() {
- 
   clearInterval(timerInterval);
-
-  
-  let secondsLeft = 15; 
+  let secondsLeft = 25;
   timerElement.innerText = `Time left: ${secondsLeft}`;
   document.getElementById("timer").appendChild(timerElement);
   timerInterval = setInterval(() => {
@@ -151,11 +152,10 @@ function loadQuestion() {
     timerElement.innerText = `Time left: ${secondsLeft}`;
     if (secondsLeft === 0) {
       clearInterval(timerInterval);
-      checkAnswer(null); 
+      checkAnswer(null);
     }
   }, 1000);
 
-  // load the question and answers as before
   questionElement.innerText = currentQuizz[currentQuestion].question;
   optionsElement.innerHTML = "";
   loadAnswers();
@@ -171,11 +171,14 @@ function shuffleArray(array) {
 }
 
 function loadAnswers() {
-  const answers = currentQuizz[currentQuestion].answers;
-  const randomizedAnswers = shuffleArray(answers);
-
+  const randomizedAnswers = currentQuizz[currentQuestion].answers;
+  /* shuffleArray(currentQuizz[currentQuestion].answers); 
+     On a essayé de mettre des réponses randomisées mais 
+     ça ne fonctionne pas pour les questions où il faut 
+     entrer un texte. 
+  */
   switch (currentQuizz[currentQuestion].type) {
-    case "one-choice":
+    case "one-choice": // Création des boutons pour les questions à choix unique
       randomizedAnswers.forEach((option) => {
         const button = document.createElement("button");
         button.innerText = option;
@@ -183,7 +186,7 @@ function loadAnswers() {
         optionsElement.appendChild(button);
       });
       break;
-    case "multiple-choice":
+    case "multiple-choice": // Création des cases à cocher pour les questions à choix multiple
       randomizedAnswers.forEach((option) => {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -201,6 +204,7 @@ function loadAnswers() {
       optionsElement.appendChild(button);
       break;
     case "text": {
+      // Création d'un champ texte pour les questions à réponse textuelle
       const input = document.createElement("input");
       input.type = "text";
       optionsElement.appendChild(input);
@@ -215,12 +219,8 @@ function loadAnswers() {
   }
 }
 
-function showHint(hint) {
-  const hintElement = document.getElementById("hint");
-  hintElement.innerText = "Hint: " + hint;
-}
-
 function checkAnswer(answer) {
+  // Vérification de la réponse
   clearInterval(timerInterval);
 
   const checkedInputs = document.querySelectorAll(
@@ -260,10 +260,13 @@ function checkAnswer(answer) {
   scoreSpan.innerText = score + "/" + currentQuizz.length;
 
   currentQuestion++;
+  hintElement.innerText = "";
+  document.getElementById("hint").appendChild(hintButton);
+
   if (currentQuestion < currentQuizz.length) {
-    loadQuestion();
+    loadQuestion(); // Si on n'est pas à la dernière question, on charge la suivante
   } else {
-    showResults(currentQuizz.length);
+    showResults(currentQuizz.length); // Sinon on affiche le score
   }
 }
 
