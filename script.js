@@ -145,10 +145,22 @@ function loadQuestion() {
   loadAnswers();
 }
 
+function shuffleArray(array) {
+  const shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+}
+
 function loadAnswers() {
+  const answers = currentQuizz[currentQuestion].answers;
+  const randomizedAnswers = shuffleArray(answers);
+
   switch (currentQuizz[currentQuestion].type) {
     case "one-choice":
-      currentQuizz[currentQuestion].answers.forEach((option) => {
+      randomizedAnswers.forEach((option) => {
         const button = document.createElement("button");
         button.innerText = option;
         button.addEventListener("click", () => checkAnswer(option));
@@ -156,7 +168,7 @@ function loadAnswers() {
       });
       break;
     case "multiple-choice":
-      currentQuizz[currentQuestion].answers.forEach((option) => {
+      randomizedAnswers.forEach((option) => {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.value = option;
@@ -186,6 +198,7 @@ function loadAnswers() {
       break;
   }
 }
+
 function checkAnswer(answer) {
   const checkedInputs = document.querySelectorAll(
     'input[type="checkbox"]:checked'
