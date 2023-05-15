@@ -108,17 +108,23 @@ const questionElement = document.getElementById("question");
 const optionsElement = document.getElementById("options");
 const hintButton = document.createElement("button");
 const hintElement = document.getElementById("hint");
-
+const resetButton = document.createElement("button");
+const resetElement = document.getElementById("reset");
 let timerElement = document.createElement("span");
 let currentQuestion = 0;
 let score = 0;
 let currentQuizz = [];
 let timerInterval;
-
 hintButton.textContent = "Hint";
 hintButton.addEventListener("click", () =>
   showHint(currentQuizz[currentQuestion].hint)
 );
+/* TENTATIVE ECHOUEE DE FAIRE UN RESET RAPIDEMENT
+resetButton.textContent = "Reset"; 
+resetButton.addEventListener("click", () => Reset());
+
+document.getElementById("hint").appendChild(resetButton);
+*/
 document.getElementById("hint").appendChild(hintButton);
 
 function showHint(hint) {
@@ -136,8 +142,13 @@ const randomQuestions = (length) => {
   return list;
 };
 
-function loadQuizz(length = 10) {
-  currentQuizz = randomQuestions(length);
+/*
+function Reset() {
+  loadQuizz(currentQuizz);
+}
+*/
+function loadQuizz(length = 10, loadedQuizz = null) {
+  currentQuizz = randomQuestions(length) || loadedQuizz;
 
   loadQuestion();
 }
